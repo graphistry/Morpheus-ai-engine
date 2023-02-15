@@ -1,10 +1,10 @@
 apiVersion: v2
-appVersion: "22.06"
+appVersion: "23.01"
 description: A Helm chart for deploying the NVIDIA Morpheus AI Engine which includes
   the Triton Inference Server.
 name: morpheus-ai-engine
 type: application
-version: "22.06"
+version: "23.01"
 
 long_description: | 
 

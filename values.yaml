@@ -13,7 +13,7 @@ ngc:
 aiengine:
   registry: "nvcr.io/nvidia"
   image: tritonserver
-  version: 22.06-py3
+  version: 22.12-py3
   # don't use command due to nvidia_entrypoint.sh!
   args:
     - tritonserver
@@ -34,6 +34,11 @@ broker:
   registry: "docker.io"
   image: bitnami/kafka
   version: 2.7.0
+
+# set brokerHost to a routable IP/hostname
+# for connecting outside of host
+brokerExternal:
+  brokerHost: localhost
   brokerPort: 30092
 
 zookeeper:

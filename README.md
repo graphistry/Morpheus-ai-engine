@@ -6,7 +6,7 @@ NVIDIA Morpheus is an open AI application framework that provides cybersecurity 
 
 ### Setup
 
-The Morpheus AI Engine container is packaged as a [Kubernetes](https://kubernetes.io/docs/home/) (aka k8s) deployment using a [Helm](https://helm.sh/docs/) chart. NVIDIA provides installation instructions for the [NVIDIA Cloud Native Core Stack](https://github.com/NVIDIA/cloud-native-core) which incorporates the setup of these platforms and tools. Morpheus and its use of Triton Inference Server are initially designed to use the T4 (e.g., the G4 instance type in AWS EC2), V100 (P3), or A100 family of GPU (P4d).
+The Morpheus AI Engine container is packaged as a [Kubernetes](https://kubernetes.io/docs/home/) (aka k8s) deployment using a [Helm](https://helm.sh/docs/) chart. NVIDIA provides installation instructions for the [NVIDIA Cloud Native Stack](https://github.com/NVIDIA/cloud-native-stack) which incorporates the setup of these platforms and tools. Morpheus and its use of Triton Inference Server are initially designed to use the T4 (e.g., the G4 instance type in AWS EC2), V100 (P3), or A100 family of GPU (P4d).
 
 #### NGC API Key
 
@@ -17,11 +17,11 @@ Once you have created your API key, create an environment variable containing yo
 export API_KEY="<your key>"
 ```
 
-After installing the Cloud Native Core Stack, install and configure the NGC Registry CLI using the instructions from the [NGC Registry CLI User Guide](https://docs.nvidia.com/dgx/ngc-registry-cli-user-guide/index.html#topic_3).
+After installing the Cloud Native Stack, install and configure the NGC Registry CLI using the instructions from the [NGC Registry CLI User Guide](https://docs.nvidia.com/dgx/ngc-registry-cli-user-guide/index.html#topic_3).
 
 #### Create Namespace for Morpheus
 
-Create a namespace and an environment variable for the namespace to organize the k8s cluster deployed via EGX Stack and logically separate Morpheus-related deployments from other projects using the following command:
+Create a namespace and an environment variable for the namespace to organize the k8s cluster deployed via the Cloud Native Stack and logically separate Morpheus-related deployments from other projects using the following command:
 
 ```
 kubectl create namespace <some name>
@@ -38,7 +38,7 @@ The Morpheus AI Engine consists of the following components:
 Install the chart as follows:
 
 ```
-helm fetch https://helm.ngc.nvidia.com/nvidia/morpheus/charts/morpheus-ai-engine-22.06.tgz --username='$oauthtoken' --password=$API_KEY --untar
+helm fetch https://helm.ngc.nvidia.com/nvidia/morpheus/charts/morpheus-ai-engine-23.01.tgz --username='$oauthtoken' --password=$API_KEY --untar
 helm install --set ngc.apiKey="$API_KEY" \
  --set aiengine.args="{tritonserver,--model-repository=/common/models,--model-control-mode=explicit}" \
  --namespace $NAMESPACE \
@@ -70,7 +70,7 @@ The identity of the public catalog Triton image which could be overridden for ot
 aiengine:
   registry: "nvcr.io/nvidia"
   image: tritonserver
-  version: 22.06-py3
+  version: 22.12-py3
   # don't use command due to nvidia_entrypoint.sh!
   args:
     - tritonserver
@@ -87,6 +87,13 @@ broker:
   registry: "docker.io"
   image: bitnami/kafka
   version: 2.7.0
+```
+
+Set brokerHost and brokerPort to a routable IP/hostname for connecting to Kafka remotely.
+
+```
+brokerExternal:
+  brokerHost: localhost
   brokerPort: 30092
 ```
 
@@ -114,7 +121,7 @@ imagePullPolicy: IfNotPresent
 Image pull secrets provide the properly formatted credentials for accessing the container images from NGC. It essentially encodes the provided API_KEY. Note that Fleet Command deployments create these secrets automatically based on the FC org, named literally 'imagepullsecret'.
 
 ```
-imagePullSecrets: 
+imagePullSecrets:
 - name: nvidia-registrykey-secret
 # - name: imagepullsecret
 ```
